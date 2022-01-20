@@ -4,7 +4,9 @@ import config from './config';
 
 const { MONGO_CONNECTION_STRING } = config;
 
-const connectDB = async () => {
+import Connection from './resources/connections/connection.schema'
+
+export const connectDB = async () => {
   try {
     await mongoose.connect(MONGO_CONNECTION_STRING, {});
 
@@ -14,4 +16,4 @@ const connectDB = async () => {
   }
 };
 
-export default { connectDB };
+export const models = { Connection }
