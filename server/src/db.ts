@@ -4,7 +4,8 @@ import config from './config';
 
 const { MONGO_CONNECTION_STRING } = config;
 
-import Connection from './resources/connections/connection.schema'
+import Connection from './resources/connections/connection.schema';
+import Message from './resources/messages/message.schema';
 
 export const connectDB = async () => {
   try {
@@ -16,4 +17,4 @@ export const connectDB = async () => {
   }
 };
 
-export const models = { Connection }
+export const models = { Connection, Message };
