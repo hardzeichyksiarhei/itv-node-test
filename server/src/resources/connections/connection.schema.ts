@@ -11,6 +11,8 @@ ConnectionSchema.virtual('id').get(function virtualId(this: any) {
   return this._id.toHexString();
 });
 
+ConnectionSchema.set('toJSON', { virtuals: true })
+
 const Connection = model<IConnectionDocument, IConnectionModel>('Connection', ConnectionSchema);
 
 export default Connection;
