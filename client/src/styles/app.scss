@@ -1,3 +1,16 @@
 @import '~antd/dist/antd.css';
 
 @import 'variables';
+
+.empty-layout {
+  min-height: 100vh;
+  .logo {
+    color: #fff;
+  }
+}
+
+.empty-layout-content {
+  min-height: 280px;
+  padding: 24px;
+  background: #fff;
+}

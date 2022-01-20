@@ -1,11 +1,21 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-import Controls from './components/Controls';
+import './styles/app.scss';
 
-function App() {
-  return <div className="app">
-    <Controls />
-  </div>;
-}
+import EmptyLayout from './layouts/EmptyLayout';
+import Dashboard from './pages/Dashboard';
+
+const App: React.FC = () => {
+  return (
+    <div className="app">
+      <Routes>
+        <Route path="/" element={<EmptyLayout />}>
+          <Route index element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </div>
+  );
+};
 
 export default App;
