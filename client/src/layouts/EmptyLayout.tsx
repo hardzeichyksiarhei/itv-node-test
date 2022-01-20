@@ -12,7 +12,7 @@ const EmptyLayout: React.FC = () => {
       <Header>
         <span className="logo">ITV Node Test</span>
       </Header>
-      <Content style={{ padding: '0 50px' }}>
+      <Content style={{ display: 'flex', flexDirection: 'column', padding: '30px' }}>
         <div className="empty-layout-content">
           <Outlet />
         </div>
