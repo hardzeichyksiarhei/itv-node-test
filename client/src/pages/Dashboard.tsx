@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Card, Button, Form, Input } from 'antd';
 
 import '../styles/dashboard.scss';
 
-const Dashboard = () => {
+import appState from '../store/appState';
+
+const Dashboard = observer(() => {
   const [form] = Form.useForm();
 
   const isConnectToSession = true;
+
+  useEffect(() => {
+    const socket = new WebSocket(`ws://localhost:5000/ws`);
+    appState.setSocket(socket);
+
+    socket.addEventListener('open', () => {
+      socket.send(JSON.stringify({ messige: 'Hello Server!' }));
+    });
+
+    socket.addEventListener('message', (message) => {
+      console.log(message.data);
+    });
+  }, []);
 
   const onFinish = (values: any) => {
     console.log('Success:', values);
@@ -46,6 +62,6 @@ const Dashboard = () => {
       </Card>
     </div>
   );
-};
+});
 
 export default Dashboard;
