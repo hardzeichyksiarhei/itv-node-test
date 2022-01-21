@@ -1,5 +1,5 @@
 # ---------- Base ----------
-FROM node:14.17-alpine AS base
+FROM node:14.18-alpine AS base
 
 WORKDIR /home/node/app
 
@@ -39,5 +39,9 @@ COPY --from=builder /home/node/app/tsconfig*.json ./
 
 # Copy the compiled app
 COPY --from=builder /home/node/app/build ./build
+
+USER node
+ENV PORT=8080
+EXPOSE 8080
 
 CMD ["node", "build/server"]
