@@ -1,37 +1,84 @@
 import React, { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Card, Button, Form, Input } from 'antd';
+import { Card, Button, Form, Input, message } from 'antd';
 
 import '../styles/dashboard.scss';
 
 import appState from '../store/appState';
+import { SocketTypes } from '../constants/SocketTypes';
+
+interface ISocketData {
+  type: SocketTypes;
+  payload?: any;
+}
 
 const Dashboard = observer(() => {
   const [form] = Form.useForm();
 
-  const isConnectToSession = true;
+  useEffect(connectToSocket, []);
 
-  useEffect(() => {
+  function connectToSocket() {
     const socket = new WebSocket(`ws://localhost:5000/ws`);
     appState.setSocket(socket);
 
     socket.addEventListener('open', () => {
-      socket.send(JSON.stringify({ messige: 'Hello Server!' }));
+      appState.setIsConnectToSession(true);
     });
 
-    socket.addEventListener('message', (message) => {
-      console.log(message.data);
-    });
-  }, []);
+    socket.addEventListener('message', (event: MessageEvent) => {
+      const { type, payload } = JSON.parse(event.data) as ISocketData;
 
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+      switch (type) {
+        case SocketTypes.CONNECTION:
+          message.info(`You are connected to a session (${payload})`);
+          appState.setSessionId(payload);
+          break;
+        case SocketTypes.ALL_ACTIVE_CONNECTIONS:
+          message.info(payload);
+          break;
+        default:
+          console.log('Socket type is not defined!');
+      }
+    });
+
+    socket.addEventListener('close', () => {
+      appState.setSocket(null);
+      appState.setIsConnectToSession(false);
+    });
+
+    socket.addEventListener('error', () => {
+      appState.setSocket(null);
+      appState.setIsConnectToSession(false);
+    });
+  }
+
+  function disconnectFromSocket() {
+    const socket = appState.socket;
+    if (!socket) return;
+
+    socket.close();
+    message.warning(`You are disconnected from a session (${appState.sessionId})`);
+    appState.setSessionId(null);
+  }
+
+  const onShowAllActiveConnections = () => {
+    if (!appState.socket) return;
+    appState.socket.send(JSON.stringify({ type: SocketTypes.ALL_ACTIVE_CONNECTIONS }));
   };
 
-  const ToggleSession = !isConnectToSession ? (
-    <Button type="primary">Сonnect to web socket</Button>
+  const onFinish = (values: any) => {
+    if (!appState.socket) return;
+    appState.socket.send(JSON.stringify({ type: SocketTypes.MESSAGE, payload: values.message }));
+
+    form.resetFields();
+  };
+
+  const ToggleSession = !appState.isConnectToSession ? (
+    <Button type="primary" onClick={connectToSocket}>
+      Сonnect to web socket
+    </Button>
   ) : (
-    <Button type="primary" danger>
+    <Button type="primary" onClick={disconnectFromSocket} danger>
       Disconnect from web socket
     </Button>
   );
@@ -41,11 +88,20 @@ const Dashboard = observer(() => {
       <Card
         style={{ width: 800 }}
         actions={[
-          <Button type="primary" onClick={() => form.submit()}>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            disabled={!appState.isConnectToSession}
+          >
             Send Message
           </Button>,
           ToggleSession,
-          <Button type="primary" ghost>
+          <Button
+            type="primary"
+            onClick={onShowAllActiveConnections}
+            disabled={!appState.isConnectToSession}
+            ghost
+          >
             Show active connections
           </Button>,
         ]}

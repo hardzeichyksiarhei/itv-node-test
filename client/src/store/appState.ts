@@ -3,17 +3,22 @@ import { makeAutoObservable } from 'mobx';
 class AppState {
   socket: WebSocket | null = null;
   sessionId: string | null = null;
+  isConnectToSession: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  setSocket(socket: WebSocket) {
+  setSocket(socket: WebSocket | null) {
     this.socket = socket;
   }
 
-  setSessionId(sessionId: string) {
+  setSessionId(sessionId: string | null) {
     this.sessionId = sessionId;
+  }
+
+  setIsConnectToSession(isConnectToSession: boolean) {
+    this.isConnectToSession = isConnectToSession;
   }
 }
 
