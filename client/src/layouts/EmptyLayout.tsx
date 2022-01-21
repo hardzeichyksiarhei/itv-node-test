@@ -9,7 +9,7 @@ const EmptyLayout: React.FC = () => {
 
   return (
     <Layout className="empty-layout">
-      <Header>
+      <Header style={{ display: 'flex', justifyContent: 'center', alignContent: 'center' }}>
         <span className="logo">ITV Node Test</span>
       </Header>
       <Content style={{ display: 'flex', flexDirection: 'column', padding: '30px' }}>
