@@ -7,6 +7,8 @@ import '../styles/dashboard.scss';
 import appState from '../store/appState';
 import { SocketTypes } from '../constants/SocketTypes';
 
+import { WS_API_URL } from '../config';
+
 interface ISocketData {
   type: SocketTypes;
   payload?: any;
@@ -18,7 +20,7 @@ const Dashboard = observer(() => {
   useEffect(connectToSocket, []);
 
   function connectToSocket() {
-    const socket = new WebSocket(`ws://localhost:5000/ws`);
+    const socket = new WebSocket(WS_API_URL);
     appState.setSocket(socket);
 
     socket.addEventListener('open', () => {
