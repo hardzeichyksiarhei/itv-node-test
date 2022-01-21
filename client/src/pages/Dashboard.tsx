@@ -22,9 +22,11 @@ const Dashboard = observer(() => {
   function connectToSocket() {
     const socket = new WebSocket(WS_API_URL);
     appState.setSocket(socket);
+    appState.setIsLoadingConnectToSession(true);
 
     socket.addEventListener('open', () => {
       appState.setIsConnectToSession(true);
+      appState.setIsLoadingConnectToSession(false);
     });
 
     socket.addEventListener('message', (event: MessageEvent) => {
@@ -72,15 +74,27 @@ const Dashboard = observer(() => {
     if (!appState.socket) return;
     appState.socket.send(JSON.stringify({ type: SocketTypes.MESSAGE, payload: values.message }));
 
+    message.success(`Message sended!`)
     form.resetFields();
   };
 
   const ToggleSession = !appState.isConnectToSession ? (
-    <Button type="primary" onClick={connectToSocket}>
+    <Button
+      type="primary"
+      loading={appState.isLoadingConnectToSession}
+      disabled={appState.isLoadingConnectToSession}
+      onClick={connectToSocket}
+    >
       Сonnect to web socket
     </Button>
   ) : (
-    <Button type="primary" onClick={disconnectFromSocket} danger>
+    <Button
+      type="primary"
+      loading={appState.isLoadingConnectToSession}
+      disabled={appState.isLoadingConnectToSession}
+      onClick={disconnectFromSocket}
+      danger
+    >
       Disconnect from web socket
     </Button>
   );
