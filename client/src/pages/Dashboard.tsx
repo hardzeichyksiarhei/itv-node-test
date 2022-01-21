@@ -34,7 +34,7 @@ const Dashboard = observer(() => {
           appState.setSessionId(payload);
           break;
         case SocketTypes.ALL_ACTIVE_CONNECTIONS:
-          message.info(payload);
+          message.info(`Number of active connections: ${payload}`);
           break;
         default:
           console.log('Socket type is not defined!');
