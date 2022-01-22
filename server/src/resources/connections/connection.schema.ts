@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Query, Document } from 'mongoose';
 
-import { IConnectionDocument, IConnectionModel } from './connection.interface';
+import { IConnectionDocument, IConnectionModel, IConnection } from './connection.interface';
 import Message from '../messages/message.schema';
 
 const ConnectionSchema = new Schema<IConnectionDocument, IConnectionModel>(
@@ -9,7 +9,7 @@ const ConnectionSchema = new Schema<IConnectionDocument, IConnectionModel>(
 );
 
 ConnectionSchema.pre('deleteOne', { document: true }, async function (next) {
-  const connection = this as any;
+  const connection = this as Query<any, Document<IConnection>> & IConnectionDocument
   await Message.deleteMany({ session: connection.id });
   next();
 });

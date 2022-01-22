@@ -14,6 +14,8 @@ MessageSchema.virtual('id').get(function virtualId(this: any) {
   return this._id.toHexString();
 });
 
+MessageSchema.set('toJSON', { virtuals: true });
+
 const Message = model<IMessageDocument, IMessageModel>('Message', MessageSchema);
 
 export default Message;

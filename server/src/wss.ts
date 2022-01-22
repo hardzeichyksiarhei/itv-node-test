@@ -42,8 +42,8 @@ export const connectWS = async (server: Server) => {
 
       switch (type) {
         case SocketTypes.MESSAGE:
-          if (!payload) break;
-          await MessageService.create({ session: sessionId, body: payload });
+          if (!payload) return;
+          await MessageService.create({ session: ws.sessionId, body: payload });
           wss.broadcast(data);
           break;
         case SocketTypes.ALL_ACTIVE_CONNECTIONS:
