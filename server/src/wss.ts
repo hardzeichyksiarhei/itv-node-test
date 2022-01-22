@@ -64,6 +64,11 @@ export const connectWS = async (server: Server) => {
       wss.broadcast({ type: SocketTypes.DISCONNECTION, sessionId });
     });
 
+    ws.on('error', async () => {
+      await ConnectionService.deleteById(ws.sessionId);
+      wss.broadcast({ type: SocketTypes.DISCONNECTION, sessionId });
+    });
+
     const data = { type: SocketTypes.CONNECTION, sessionId };
     wss.broadcast(data);
     ws.send(JSON.stringify(data));
