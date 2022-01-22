@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Card, Button, Form, Input, message } from 'antd';
+import { Card, Button, Form, Input, message, notification } from 'antd';
 
 import '../styles/dashboard.scss';
 
@@ -11,6 +11,7 @@ import { WS_API_URL } from '../config';
 
 interface ISocketData {
   type: SocketTypes;
+  sessionId: string;
   payload?: any;
 }
 
@@ -19,41 +20,59 @@ const Dashboard = observer(() => {
 
   useEffect(connectToSocket, []);
 
+  const onWebSocketOpen = () => {
+    appState.setIsConnectToSession(true);
+    appState.setIsLoadingConnectToSession(false);
+  };
+
+  const onWebSocketMessage = (event: MessageEvent) => {
+    const { type, sessionId, payload } = JSON.parse(event.data) as ISocketData;
+
+    switch (type) {
+      case SocketTypes.CONNECTION:
+        if (appState.sessionId && sessionId !== appState.sessionId) {
+          message.info(`Client are connected to a session (${sessionId})`);
+          break;
+        }
+        message.success(`You are connected to a session (${sessionId})`);
+        appState.setSessionId(sessionId);
+        break;
+      case SocketTypes.DISCONNECTION:
+        message.warning(`Client are disconnected from a session (${sessionId})`);
+        break;
+      case SocketTypes.MESSAGE:
+        notification.open({
+          message: `Client: #${sessionId}`,
+          description: `Message: ${payload}`,
+        });
+        break;
+      case SocketTypes.ALL_ACTIVE_CONNECTIONS:
+        message.info(`Number of active connections: ${payload}`);
+        break;
+      default:
+        console.log('Socket type is not defined!');
+    }
+  };
+
+  const onWebSocketClose = () => {
+    appState.setSocket(null);
+    appState.setIsConnectToSession(false);
+  };
+
+  const onWebSocketError = () => () => {
+    appState.setSocket(null);
+    appState.setIsConnectToSession(false);
+  };
+
   function connectToSocket() {
     const socket = new WebSocket(WS_API_URL);
     appState.setSocket(socket);
     appState.setIsLoadingConnectToSession(true);
 
-    socket.addEventListener('open', () => {
-      appState.setIsConnectToSession(true);
-      appState.setIsLoadingConnectToSession(false);
-    });
-
-    socket.addEventListener('message', (event: MessageEvent) => {
-      const { type, payload } = JSON.parse(event.data) as ISocketData;
-
-      switch (type) {
-        case SocketTypes.CONNECTION:
-          message.info(`You are connected to a session (${payload})`);
-          appState.setSessionId(payload);
-          break;
-        case SocketTypes.ALL_ACTIVE_CONNECTIONS:
-          message.info(`Number of active connections: ${payload}`);
-          break;
-        default:
-          console.log('Socket type is not defined!');
-      }
-    });
-
-    socket.addEventListener('close', () => {
-      appState.setSocket(null);
-      appState.setIsConnectToSession(false);
-    });
-
-    socket.addEventListener('error', () => {
-      appState.setSocket(null);
-      appState.setIsConnectToSession(false);
-    });
+    socket.addEventListener('open', onWebSocketOpen);
+    socket.addEventListener('message', onWebSocketMessage);
+    socket.addEventListener('close', onWebSocketClose);
+    socket.addEventListener('error', onWebSocketError);
   }
 
   function disconnectFromSocket() {
@@ -67,14 +86,22 @@ const Dashboard = observer(() => {
 
   const onShowAllActiveConnections = () => {
     if (!appState.socket) return;
-    appState.socket.send(JSON.stringify({ type: SocketTypes.ALL_ACTIVE_CONNECTIONS }));
+    appState.socket.send(
+      JSON.stringify({ type: SocketTypes.ALL_ACTIVE_CONNECTIONS, sessionId: appState.sessionId })
+    );
   };
 
   const onFinish = (values: any) => {
     if (!appState.socket) return;
-    appState.socket.send(JSON.stringify({ type: SocketTypes.MESSAGE, payload: values.message }));
+    appState.socket.send(
+      JSON.stringify({
+        type: SocketTypes.MESSAGE,
+        sessionId: appState.sessionId,
+        payload: values.message,
+      })
+    );
 
-    message.success(`Message sended!`)
+    message.success(`Message sended!`);
     form.resetFields();
   };
 
