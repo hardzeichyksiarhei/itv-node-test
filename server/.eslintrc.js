@@ -23,6 +23,7 @@ module.exports = {
       tryExtensions: ['.js', '.json', '.ts', '.d.ts'],
     },
   },
+  ignorePatterns: ['.eslintrc.js'],
   extends: [
     'eslint:recommended',
     'plugin:node/recommended',
