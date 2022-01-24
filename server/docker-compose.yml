@@ -1,0 +1,45 @@
+version: '3'
+services:
+  node:
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=${PORT}
+    restart: always # OR on-failure
+    networks:
+      - app-bridge
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodbdata:/var/lib/mongodb/data
+    networks:
+      - app-bridge
+
+  mongodb-express:
+    image: mongo-express
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASSWORD}
+    networks:
+      - app-bridge
+
+networks:
+  app-bridge:
+    driver: bridge
+
+volumes:
+  mongodbdata:

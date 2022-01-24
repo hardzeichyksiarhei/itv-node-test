@@ -1,0 +1,17 @@
+@import '~antd/dist/antd.css';
+
+@import 'variables';
+
+.empty-layout {
+  min-height: 100vh;
+  .logo {
+    color: #fff;
+    font-size: 20px;
+  }
+}
+
+.empty-layout-content {
+  flex-grow: 1;
+  padding: 24px;
+  background: #fff;
+}

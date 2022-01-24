@@ -1,0 +1,1 @@
+export const WS_API_URL = process.env.REACT_APP_WS_API_URL || 'ws://localhost:5000/ws';
